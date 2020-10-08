@@ -128,6 +128,7 @@ export class GirModule {
     private annotateFunctions(girClass: GirClass | null, funcs: GirFunction[]): void {
         if (funcs)
             for (const func of funcs) {
+                if (!func || !func.$) continue
                 const nsName = girClass ? girClass._fullSymName : this.name
                 func._fullSymName = `${nsName}.${func.$.name}`
                 func._module = this
@@ -189,6 +190,8 @@ export class GirModule {
         for (const girClass of girClasses) {
             girClass._module = this
             girClass._fullSymName = `${this.name}.${girClass.$.name}`
+            const cons = girClass.constructor instanceof Array ? girClass.constructor : []
+            this.annotateFunctions(girClass, cons)
             this.annotateFunctions(girClass, girClass.function || [])
             this.annotateFunctions(girClass, girClass.method || [])
             this.annotateFunctions(girClass, girClass['virtual-method'] || [])
